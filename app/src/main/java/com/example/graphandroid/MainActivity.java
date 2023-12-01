@@ -1,6 +1,9 @@
 package com.example.graphandroid;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.example.graphandroid.viewmodel.ChartViewModel;
@@ -15,8 +18,10 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.core.view.WindowCompat;
@@ -31,6 +36,7 @@ import com.example.graphandroid.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private Button loadCsvButton;
 
     private ChartViewModel viewModel;
+    private static final int READ_REQUEST_CODE = 42;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
         barChart.getDescription().setTextColor(Color.BLUE);
 
         //PieChart dataSet
-
         PieDataSet pieDataSet = new PieDataSet(pieEntries, "Student");
         pieDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         pieChart.setData(new PieData(pieDataSet));
@@ -83,10 +90,36 @@ public class MainActivity extends AppCompatActivity {
         loadCsvButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewModel.loadCsv();
+                openFilePicker();
+            }
+        });
+        viewModel.getCsvData().observe(this, csvData -> {
+            // Handle the retrieved CSV data here
+            if (csvData != null && !csvData.isEmpty()) {
+                // Process the CSV data
+                for (String[] rowData : csvData) {
+                    Toast.makeText(this, rowData[0]+ "###" +rowData[1], Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
+
     }
 
+    private void openFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/*"); // Set your required MIME type here
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == READ_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            Uri selectedFileUri = data.getData();
+            viewModel.loadCsvData(selectedFileUri, getContentResolver());
+        }
+    }
 }
