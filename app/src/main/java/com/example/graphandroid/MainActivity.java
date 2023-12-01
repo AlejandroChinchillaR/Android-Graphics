@@ -3,6 +3,7 @@ package com.example.graphandroid;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import com.example.graphandroid.viewmodel.ChartViewModel;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.BarData;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import androidx.core.view.WindowCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -28,6 +30,7 @@ import com.example.graphandroid.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -36,15 +39,19 @@ public class MainActivity extends AppCompatActivity {
 
     private BarChart barChart;
     private PieChart pieChart;
+    private Button loadCsvButton;
 
+    private ChartViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        viewModel = new ViewModelProvider(this).get(ChartViewModel.class);
         barChart = findViewById(R.id.bar_chart);
         pieChart = findViewById(R.id.pie_chart);
+        loadCsvButton = findViewById(R.id.load_csv_button);
         ArrayList<BarEntry> barEntries = new ArrayList();
         ArrayList<PieEntry> pieEntries = new ArrayList();
 
@@ -73,6 +80,12 @@ public class MainActivity extends AppCompatActivity {
         pieChart.setData(new PieData(pieDataSet));
         pieChart.animateXY(5000,5000);
         pieChart.getDescription().setEnabled(false);
+        loadCsvButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.loadCsv();
+            }
+        });
 
     }
 
