@@ -72,35 +72,16 @@ public class MainActivity extends AppCompatActivity {
                 openFilePicker();
             }
         });
-        viewModel.getCsvData().observe(this, csvData -> {
-            // Handle the retrieved CSV data here
-            if (csvData != null && !csvData.isEmpty()) {
-                // Process the CSV data
-                for (String[] rowData : csvData) {
-                    try{
-                        BarEntry barEntry = new BarEntry(Float.parseFloat(rowData[0]), Float.parseFloat(rowData[1]));
-                        PieEntry pieEntry = new PieEntry(Float.parseFloat(rowData[1]), rowData[0]);
-                        barEntries.add(barEntry);
-                        pieEntries.add(pieEntry);
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(this, "Error reading CSV row.", Toast.LENGTH_SHORT).show();
-                    }
+        viewModel.checkCSV().observe(this, checked -> {
 
-                }
+            if (checked) {
 
-                //Barchar dataset
-                BarDataSet barDataSet = new BarDataSet(barEntries,"Employees");
-                barDataSet.setColors(ColorTemplate.PASTEL_COLORS);
-                barDataSet.setDrawValues(false);
-                barChart.setData(new BarData(barDataSet));
+                barChart.setData(new BarData(viewModel.getBarDataSet()));
                 barChart.animateY(5000);
                 barChart.getDescription().setText("Employees chart");
                 barChart.getDescription().setTextColor(Color.BLUE);
 
-                //PieChart dataSet
-                PieDataSet pieDataSet = new PieDataSet(pieEntries, "Student");
-                pieDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-                pieChart.setData(new PieData(pieDataSet));
+                pieChart.setData(new PieData(viewModel.getPieDataSet()));
                 pieChart.animateXY(5000,5000);
                 pieChart.getDescription().setEnabled(false);
             }else{

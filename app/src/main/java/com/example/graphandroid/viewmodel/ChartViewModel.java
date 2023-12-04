@@ -45,15 +45,18 @@ import java.util.List;
 public class ChartViewModel extends ViewModel {
 
     private MutableLiveData<String> toastMessage = new MutableLiveData<>();
+    private MutableLiveData<Boolean> checkedCSV = new MutableLiveData<>();
     private MutableLiveData<Boolean> loading = new MutableLiveData<>();
-    private List<String[]> csvData = new ArrayList<>();
-
     private ArrayList<BarEntry> barEntries = new ArrayList();
     private ArrayList<PieEntry> pieEntries = new ArrayList();
+    private BarDataSet barDataSet;
+    private PieDataSet pieDataSet;
     public LiveData<Boolean> isLoading() {
         return loading;
     }
-
+    public LiveData<Boolean> checkCSV() {
+        return checkedCSV;
+    }
 
     public ChartViewModel() {
     }
@@ -72,7 +75,7 @@ public class ChartViewModel extends ViewModel {
                     dataList.add(rowData);
                 }
                 inputStream.close();
-                csvData = dataList;
+                handleCsvData(dataList);
             } catch (IOException e) {
                 // Handle file reading error
                 e.printStackTrace();
@@ -83,7 +86,7 @@ public class ChartViewModel extends ViewModel {
 
     }
 
-    private void handleCsvData() {
+    private void handleCsvData(List<String[]> csvData) {
         if (csvData != null && !csvData.isEmpty()) {
             for (String[] rowData : csvData) {
                 try {
@@ -98,12 +101,13 @@ public class ChartViewModel extends ViewModel {
             }
 
             //Barchar dataset
-            BarDataSet barDataSet = new BarDataSet(barEntries, "Employees");
+            barDataSet = new BarDataSet(barEntries, "Employees");
             barDataSet.setColors(ColorTemplate.PASTEL_COLORS);
             barDataSet.setDrawValues(false);
             //PieChart dataSet
-            PieDataSet pieDataSet = new PieDataSet(pieEntries, "Student");
+            pieDataSet = new PieDataSet(pieEntries, "Student");
             pieDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+            checkedCSV.setValue(true);
         } else {
             showToast("Invalid file");
         }
@@ -121,5 +125,13 @@ public class ChartViewModel extends ViewModel {
 
     public void showToast(String message) {
         toastMessage.setValue(message);
+    }
+
+    public BarDataSet getBarDataSet(){
+        return  barDataSet;
+    }
+
+    public PieDataSet getPieDataSet(){
+        return  pieDataSet;
     }
 }
