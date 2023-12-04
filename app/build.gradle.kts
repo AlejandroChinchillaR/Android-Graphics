@@ -46,5 +46,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     // dependency on the latest commit in the master branch
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("commons-io:commons-io:2.6")
 
 }
